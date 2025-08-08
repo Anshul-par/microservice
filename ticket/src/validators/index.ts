@@ -5,7 +5,6 @@ export const ticket_creation_validate = {
     .keys({
       title: Joi.string().min(3).max(100).required(),
       price: Joi.number().required(),
-      userId: Joi.string().required(),
     })
     .required(),
 };

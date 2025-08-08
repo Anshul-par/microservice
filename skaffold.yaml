@@ -16,6 +16,22 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: ansh0712/tickets
+      context: ./ticket
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
+    - image: ansh0712/orders
+      context: ./order
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
     - image: ansh0712/frontend
       context: ./client
       docker:

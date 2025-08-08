@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --poll src/index.ts",
+    "dev": "ts-node-dev --poll index.ts",
     "test": "jest --watchAll --no-cache",
     "build": "tsc"
   },
@@ -19,7 +19,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@ansh0712/common": "^1.0.9",
+    "@ansh0712/common": "^1.0.11",
     "cookie-session": "^2.1.1",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",

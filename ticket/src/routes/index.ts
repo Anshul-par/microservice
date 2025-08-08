@@ -9,6 +9,9 @@ import {
   ticket_creation_validate,
   ticket_update_validate,
 } from "../validators";
+import { TicketCreatedPublisher } from "../events/publisher/ticketCreatedPublisher";
+import { natsWrapper } from "../utility/nats-wrapper";
+import { TicketUpdatedPublisher } from "../events/publisher/ticketUpdatedPublisher";
 
 export const rootRouter = express.Router();
 
@@ -22,6 +25,13 @@ rootRouter.post(
     const ticket = await TicketModel.create({
       ...payload,
       userId: req.user.id,
+    });
+
+    await new TicketCreatedPublisher(natsWrapper.instance()).publish({
+      id: ticket._id.toString(),
+      title: ticket.title,
+      price: ticket.price,
+      userId: ticket.userId.toString(),
     });
 
     return res.status(StatusCodes.CREATED).json({
@@ -39,7 +49,7 @@ rootRouter.patch(
     const payload = req.body;
     const id = req.params.id;
 
-    const ticket = await TicketModel.findById(id);
+    let ticket = await TicketModel.findById(id);
 
     if (!ticket) {
       throw new APIError(StatusCodes.NOT_FOUND, "Ticket not found");
@@ -52,8 +62,15 @@ rootRouter.patch(
       );
     }
 
-    await TicketModel.findByIdAndUpdate(id, payload, {
+    ticket = await TicketModel.findByIdAndUpdate(id, payload, {
       new: true,
+    });
+
+    await new TicketUpdatedPublisher(natsWrapper.instance()).publish({
+      id: ticket._id.toString(),
+      title: ticket.title,
+      price: ticket.price,
+      userId: ticket.userId.toString(),
     });
 
     return res.status(StatusCodes.CREATED).json({
@@ -99,9 +116,11 @@ rootRouter.delete(
 
 rootRouter.get("/", async (req: Request, res: Response) => {
   const ticket = await TicketModel.find({}).lean();
-  return res
-    .status(StatusCodes.OK)
-    .json({ message: "Welcome to the Auth API", data: ticket, success: true });
+  return res.status(StatusCodes.OK).json({
+    message: "Tickets fetched successfully",
+    data: ticket,
+    success: true,
+  });
 });
 rootRouter.get(
   "/:id",
